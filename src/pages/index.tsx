@@ -1,18 +1,26 @@
-import Head from 'next/head';
 import { useGetPokemonsQuery } from '@/redux/features/pokemonsSlice';
+import { Spin, Layout } from 'antd';
+import { Pokemons } from '@/components/pokemons';
+import { PokemonResponse } from '@/types/pokemons';
 
 export default function Home() {
-  const { isLoading, data } = useGetPokemonsQuery({ offset: 0, limit: 20 });
-  console.log(data);
-  console.log(isLoading);
+  const { isLoading, data }: { isLoading: boolean; data: PokemonResponse } =
+    useGetPokemonsQuery({
+      offset: 0,
+      limit: 20
+    });
+
+  if (isLoading) {
+    return (
+      <div className={'container-center'}>
+        <Spin size="large" />{' '}
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Head>
-        <title>pokemons</title>
-        <meta name="description" content="table of pokemons" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-    </>
+    <Layout>
+      <Pokemons data={data.results} />
+    </Layout>
   );
 }
