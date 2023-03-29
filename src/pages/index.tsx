@@ -6,11 +6,12 @@ import { PokemonResponse } from '@/types/pokemons';
 export default function Home() {
   const { isLoading, data }: { isLoading: boolean; data: PokemonResponse } =
     useGetPokemonsQuery({
-      offset: 0,
+      offset: 20,
       limit: 20
     });
+  console.log(data);
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <div className={'container-center'}>
         <Spin size="large" />{' '}
