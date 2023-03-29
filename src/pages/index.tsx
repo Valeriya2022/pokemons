@@ -1,6 +1,10 @@
-import Head from 'next/head'
+import Head from 'next/head';
+import { useGetPokemonsQuery } from '@/redux/features/pokemonsSlice';
 
 export default function Home() {
+  const { isLoading, data } = useGetPokemonsQuery({ offset: 0, limit: 20 });
+  console.log(data);
+  console.log(isLoading);
   return (
     <>
       <Head>
@@ -10,5 +14,5 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
     </>
-  )
+  );
 }
