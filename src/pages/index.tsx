@@ -35,13 +35,7 @@ export default function Home() {
 
   return (
     <Layout>
-      {isFetching ? (
-        <div className={'container-center'}>
-          <Spin size="large" />{' '}
-        </div>
-      ) : (
-        <Pokemons data={data.results} />
-      )}
+      <Pokemons data={data.results} />
       <Footer>
         <Space>
           <Pagination
