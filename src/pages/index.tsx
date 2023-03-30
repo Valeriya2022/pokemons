@@ -7,7 +7,7 @@ import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
 export default function Home() {
   const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
-  const { isLoading, data, refetch } = useGetPokemonsQuery({
+  const { isLoading, data, refetch, isFetching } = useGetPokemonsQuery({
     offset: currentPage.offset,
     limit: currentPage.limit
   });
@@ -23,7 +23,7 @@ export default function Home() {
     refetch();
   };
 
-  if (isLoading || !data) {
+  if (isLoading || !data || isFetching) {
     return (
       <div className={'container-center'}>
         <Spin size="large" />{' '}
