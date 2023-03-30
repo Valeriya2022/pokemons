@@ -1,8 +1,10 @@
 import { useGetPokemonsQuery } from '@/redux/features/pokemonsSlice';
-import { Spin, Layout, Pagination } from 'antd';
+import { Spin, Layout, Pagination, Space } from 'antd';
 import { Pokemons } from '@/components/pokemons';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
+
+const { Footer } = Layout;
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -33,13 +35,24 @@ export default function Home() {
 
   return (
     <Layout>
-      <Pokemons data={data.results} />
-      <Pagination
-        current={currentPage.currentPage}
-        total={data.count}
-        pageSizeOptions={[10, 20, 50]}
-        onChange={handlePageChange}
-      />
+      {isFetching ? (
+        <div className={'container-center'}>
+          <Spin size="large" />{' '}
+        </div>
+      ) : (
+        <Pokemons data={data.results} />
+      )}
+      <Footer>
+        <Space>
+          <Pagination
+            current={currentPage.currentPage}
+            total={data.count}
+            pageSizeOptions={[10, 20, 50]}
+            pageSize={currentPage.limit}
+            onChange={handlePageChange}
+          />
+        </Space>
+      </Footer>
     </Layout>
   );
 }
