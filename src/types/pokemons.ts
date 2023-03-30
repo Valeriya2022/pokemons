@@ -5,6 +5,12 @@ type Type = {
   };
 };
 
+type Ability = {
+  ability: {
+    name: string;
+  };
+};
+
 export type Pokemon = {
   name: string;
   url: string;
@@ -13,6 +19,12 @@ export type Pokemon = {
   };
   types: Type[];
   base_experience: number;
+  species: {
+    name: string;
+  };
+  height: number;
+  weight: number;
+  abilities: Ability[];
 };
 
 export type PokemonResponse = {
