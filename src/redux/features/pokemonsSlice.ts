@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
 import { PokemonResponse } from '@/types/pokemons';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/react';
@@ -6,8 +7,16 @@ export const pokemonsApi = createApi({
   reducerPath: 'pokemonsApi',
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API }),
   endpoints: build => ({
-    getPokemons: build.query<PokemonResponse, void>({
-      async queryFn({ offset, limit }, _queryApi, _extraOptions, fetchWithBQ) {
+    getPokemons: build.query<
+      PokemonResponse,
+      { offset: number; limit: number }
+    >({
+      async queryFn(
+        { offset, limit }: { offset: number; limit: number },
+        _queryApi,
+        _extraOptions,
+        fetchWithBQ
+      ) {
         const response = { data: {} };
         const pokemonList = await fetchWithBQ(
           `pokemon?offset=${offset}&limit=${limit}`
@@ -30,7 +39,3 @@ export const pokemonsApi = createApi({
 });
 
 export const { useGetPokemonsQuery } = pokemonsApi;
-
-// query: ({ offset, limit }: { offset: number; limit: number }) => ({
-//   url: `pokemon?offset=${offset}&limit=${limit}`
-// })
