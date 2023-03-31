@@ -1,24 +1,20 @@
 import { Layout, Pagination, Space } from 'antd';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
-import { Pokemon, PokemonResponse } from '@/types/pokemons';
+import { Pokemon } from '@/types/pokemons';
 
 const { Footer } = Layout;
 
 type PokemonPaginationType = {
   setPokemonList: (arg1: Pokemon[]) => void;
-  allPokemons?: PokemonResponse;
-  isAllPokemonsLoading: boolean;
+  allPokemons?: Pokemon[];
   totalItems: number;
-  refetch: () => void;
 };
 
 export default function PokemonPagination({
   setPokemonList,
   allPokemons,
-  isAllPokemonsLoading,
-  totalItems,
-  refetch
+  totalItems
 }: PokemonPaginationType) {
   const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
@@ -32,11 +28,7 @@ export default function PokemonPagination({
         offset: offset
       })
     );
-    if (isAllPokemonsLoading || !allPokemons) {
-      refetch();
-    } else {
-      setPokemonList(allPokemons.results.slice(offset, offset + size));
-    }
+    setPokemonList(allPokemons.slice(offset, offset + size));
   };
 
   return (
