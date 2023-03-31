@@ -1,27 +1,45 @@
 import { useGetAllPokemonsQuery } from '@/redux/features/pokemonsSlice';
-import { Spin, Layout, Input } from 'antd';
+import { Spin, Layout } from 'antd';
 import { Pokemons } from '@/components/pokemons';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
 import { useEffect, useMemo, useState } from 'react';
 import { Pokemon } from '@/types/pokemons';
 import PokemonPagination from '@/components/pokemonPagination';
+import SearchAndFilter from '@/components/searchAndFilter';
 
 export default function Home() {
   const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [searchString, setSearchString] = useState<string>('');
+  const [selectedTypes, setSelectedTypes] = useState<Array<string>>([]);
   const { isLoading, isError, data: allPokemons } = useGetAllPokemonsQuery();
+
+  const filteredPokemon = useMemo(
+    () =>
+      selectedTypes.length > 0 && allPokemons
+        ? allPokemons.results.filter(pokemon => {
+            const arr = pokemon.types;
+
+            for (let i = 0; i < arr.length; i += 1) {
+              if (selectedTypes.indexOf(arr[i].type.name) !== -1) return true;
+            }
+            return false;
+          })
+        : allPokemons?.results,
+
+    [selectedTypes, allPokemons]
+  );
 
   const searchResults = useMemo(
     () =>
-      searchString && allPokemons?.results
-        ? allPokemons.results.filter(pokemon =>
+      searchString && filteredPokemon
+        ? filteredPokemon.filter(pokemon =>
             pokemon.name.includes(searchString.toLowerCase())
           )
-        : allPokemons?.results,
-    [searchString, allPokemons]
+        : filteredPokemon,
+    [searchString, filteredPokemon]
   );
 
   useEffect(() => {
@@ -56,15 +74,10 @@ export default function Home() {
 
   return (
     <Layout>
-      <Input
-        style={{
-          maxWidth: '90vw',
-          marginLeft: '50%',
-          transform: 'translateX(-50%)',
-          marginTop: '20px'
-        }}
-        placeholder="Search..."
-        onChange={e => setSearchString(e.target.value)}
+      <SearchAndFilter
+        selectedTypes={selectedTypes}
+        setSelectedTypes={setSelectedTypes}
+        setSearchString={setSearchString}
       />
       <Pokemons data={pokemonList} />
       {searchResults && (
