@@ -1,4 +1,4 @@
-import { Modal, Button, Avatar, Tag } from 'antd';
+import { Modal, Button, Avatar } from 'antd';
 import { Pokemon } from '@/types/pokemons';
 
 type PokemonModalType = {
@@ -12,7 +12,6 @@ export const PokemonModal = ({
   visible,
   setVisible
 }: PokemonModalType) => {
-  console.log(pokemon);
   return (
     <Modal
       title={pokemon.name}

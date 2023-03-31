@@ -41,8 +41,25 @@ export const pokemonsApi = createApi({
         response.data['results'] = pokemonsDetails;
         return response;
       }
+    }),
+    getAllPokemons: build.query<PokemonResponse, void>({
+      async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
+        const response = { data: {} };
+        const pokemonList = await fetchWithBQ(`pokemon?limit=1281`);
+        if (pokemonList.error)
+          return { error: pokemonList.error as FetchBaseQueryError };
+        response.data['count'] = pokemonList.data.count;
+        const pokemonsDetails = await Promise.all(
+          pokemonList.data.results.map(async pokemon => {
+            const result = await fetchDetails(pokemon);
+            return result;
+          })
+        );
+        response.data['results'] = pokemonsDetails;
+        return response;
+      }
     })
   })
 });
 
-export const { useGetPokemonsQuery } = pokemonsApi;
+export const { useGetPokemonsQuery, useGetAllPokemonsQuery } = pokemonsApi;

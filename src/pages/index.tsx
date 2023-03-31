@@ -1,31 +1,34 @@
-import { useGetPokemonsQuery } from '@/redux/features/pokemonsSlice';
-import { Spin, Layout, Pagination, Space } from 'antd';
+import {
+  useGetAllPokemonsQuery,
+  useGetPokemonsQuery
+} from '@/redux/features/pokemonsSlice';
+import { Spin, Layout } from 'antd';
 import { Pokemons } from '@/components/pokemons';
-import { useAppSelector, useAppDispatch } from '@/redux/hooks';
-import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
-
-const { Footer } = Layout;
+import { useAppSelector } from '@/redux/hooks';
+import { getCurrentPage } from '@/redux/slices/pageSlice';
+import { useEffect, useState } from 'react';
+import { Pokemon } from '@/types/pokemons';
+import PokemonPagination from '@/components/pokemonPagination';
 
 export default function Home() {
-  const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
-  const { isLoading, data, refetch, isFetching } = useGetPokemonsQuery({
-    offset: currentPage.offset,
-    limit: currentPage.limit
-  });
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+  const { isLoading, data, refetch, isFetching, isError } = useGetPokemonsQuery(
+    {
+      offset: currentPage.offset,
+      limit: currentPage.limit
+    }
+  );
+  const { isLoading: isAllPokemonsLoading, data: allPokemons } =
+    useGetAllPokemonsQuery();
 
-  const handlePageChange = (page, size) => {
-    dispatch(
-      setCurrentPage({
-        currentPage: page,
-        limit: size,
-        offset: (page - 1) * size
-      })
-    );
-    refetch();
-  };
+  useEffect(() => {
+    if (!isLoading && !isError && data) {
+      setPokemonList(data.results);
+    }
+  }, [data, isError, isLoading]);
 
-  if (isLoading || !data || isFetching) {
+  if (isLoading || pokemonList.length === 0 || isFetching || !data) {
     return (
       <div className={'container-center'}>
         <Spin size="large" />{' '}
@@ -35,18 +38,14 @@ export default function Home() {
 
   return (
     <Layout>
-      <Pokemons data={data.results} />
-      <Footer>
-        <Space>
-          <Pagination
-            current={currentPage.currentPage}
-            total={data.count}
-            pageSizeOptions={[10, 20, 50]}
-            pageSize={currentPage.limit}
-            onChange={handlePageChange}
-          />
-        </Space>
-      </Footer>
+      <Pokemons data={pokemonList} />
+      <PokemonPagination
+        setPokemonList={setPokemonList}
+        allPokemons={allPokemons}
+        isAllPokemonsLoading={isAllPokemonsLoading}
+        totalItems={data?.count}
+        refetch={refetch}
+      />
     </Layout>
   );
 }

@@ -15,6 +15,7 @@ export const PokemonCard = ({ pokemon }: { pokemon: Pokemon }) => {
             src={pokemon.sprites.front_default ?? '/icon_monster.png'}
           />
         }
+        hoverable={true}
       >
         <Card.Meta
           title={pokemon.name}
