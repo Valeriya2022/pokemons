@@ -1,13 +1,14 @@
 import { useGetAllPokemonsQuery } from '@/redux/features/pokemonsSlice';
 import { Spin, Layout, Input } from 'antd';
 import { Pokemons } from '@/components/pokemons';
-import { useAppSelector } from '@/redux/hooks';
-import { getCurrentPage } from '@/redux/slices/pageSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { getCurrentPage, setCurrentPage } from '@/redux/slices/pageSlice';
 import { useEffect, useMemo, useState } from 'react';
 import { Pokemon } from '@/types/pokemons';
 import PokemonPagination from '@/components/pokemonPagination';
 
 export default function Home() {
+  const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
   const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
   const [searchString, setSearchString] = useState<string>('');
@@ -15,7 +16,7 @@ export default function Home() {
 
   const searchResults = useMemo(
     () =>
-      searchString
+      searchString && allPokemons?.results
         ? allPokemons.results.filter(pokemon =>
             pokemon.name.includes(searchString.toLowerCase())
           )
@@ -25,14 +26,25 @@ export default function Home() {
 
   useEffect(() => {
     if (searchResults && searchResults.length > 0) {
-      setPokemonList(
-        searchResults.slice(
-          currentPage.offset,
-          currentPage.limit + currentPage.offset
-        )
-      );
+      if (searchResults.length <= currentPage.offset) {
+        dispatch(
+          setCurrentPage({
+            currentPage: 1,
+            limit: currentPage.limit,
+            offset: 0
+          })
+        );
+        setPokemonList(searchResults.slice(0, currentPage.limit));
+      } else {
+        setPokemonList(
+          searchResults.slice(
+            currentPage.offset,
+            currentPage.limit + currentPage.offset
+          )
+        );
+      }
     }
-  }, [searchResults, currentPage]);
+  }, [searchResults]);
 
   if (isLoading || isError || pokemonList.length === 0) {
     return (
@@ -55,11 +67,12 @@ export default function Home() {
         onChange={e => setSearchString(e.target.value)}
       />
       <Pokemons data={pokemonList} />
-      <PokemonPagination
-        setPokemonList={setPokemonList}
-        allPokemons={searchResults}
-        totalItems={searchResults.length}
-      />
+      {searchResults && (
+        <PokemonPagination
+          setPokemonList={setPokemonList}
+          allPokemons={searchResults}
+        />
+      )}
     </Layout>
   );
 }

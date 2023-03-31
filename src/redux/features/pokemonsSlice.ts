@@ -6,42 +6,13 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/react';
 const fetchDetails = async pokemon => {
   const { url } = pokemon;
   const response = await fetch(url);
-  const data = await response.json();
-  return data;
+  return await response.json();
 };
 
 export const pokemonsApi = createApi({
   reducerPath: 'pokemonsApi',
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API }),
   endpoints: build => ({
-    getPokemons: build.query<
-      PokemonResponse,
-      { offset: number; limit: number }
-    >({
-      async queryFn(
-        { offset, limit }: { offset: number; limit: number },
-        _queryApi,
-        _extraOptions,
-        fetchWithBQ
-      ) {
-        const response = { data: {} };
-        const pokemonList = await fetchWithBQ(
-          `pokemon?offset=${offset}&limit=${limit}`
-        );
-        if (pokemonList.error)
-          return { error: pokemonList.error as FetchBaseQueryError };
-        response.data['count'] = pokemonList.data.count;
-        const pokemonsDetails = await Promise.all(
-          pokemonList.data.results.map(async pokemon => {
-            const result = await fetchDetails(pokemon);
-
-            return result;
-          })
-        );
-        response.data['results'] = pokemonsDetails;
-        return response;
-      }
-    }),
     getAllPokemons: build.query<PokemonResponse, void>({
       async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
         const response = { data: {} };
@@ -49,17 +20,15 @@ export const pokemonsApi = createApi({
         if (pokemonList.error)
           return { error: pokemonList.error as FetchBaseQueryError };
         response.data['count'] = pokemonList.data.count;
-        const pokemonsDetails = await Promise.all(
+        response.data['results'] = await Promise.all(
           pokemonList.data.results.map(async pokemon => {
-            const result = await fetchDetails(pokemon);
-            return result;
+            return await fetchDetails(pokemon);
           })
         );
-        response.data['results'] = pokemonsDetails;
         return response;
       }
     })
   })
 });
 
-export const { useGetPokemonsQuery, useGetAllPokemonsQuery } = pokemonsApi;
+export const { useGetAllPokemonsQuery } = pokemonsApi;

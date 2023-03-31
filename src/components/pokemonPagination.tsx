@@ -7,14 +7,12 @@ const { Footer } = Layout;
 
 type PokemonPaginationType = {
   setPokemonList: (arg1: Pokemon[]) => void;
-  allPokemons?: Pokemon[];
-  totalItems: number;
+  allPokemons: Pokemon[];
 };
 
 export default function PokemonPagination({
   setPokemonList,
-  allPokemons,
-  totalItems
+  allPokemons
 }: PokemonPaginationType) {
   const dispatch = useAppDispatch();
   const currentPage = useAppSelector(getCurrentPage);
@@ -36,7 +34,7 @@ export default function PokemonPagination({
       <Space>
         <Pagination
           current={currentPage.currentPage}
-          total={totalItems}
+          total={allPokemons.length}
           pageSizeOptions={[10, 20, 50]}
           pageSize={currentPage.limit}
           onChange={handlePageChange}
