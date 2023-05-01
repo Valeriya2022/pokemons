@@ -16,7 +16,7 @@ export const pokemonsApi = createApi({
     getAllPokemons: build.query<PokemonResponse, void>({
       async queryFn(_arg, _queryApi, _extraOptions, fetchWithBQ) {
         const response = { data: {} };
-        const pokemonList = await fetchWithBQ(`pokemon?limit=1281`);
+        const pokemonList = await fetchWithBQ(`pokemon?limit=100`);
         if (pokemonList.error)
           return { error: pokemonList.error as FetchBaseQueryError };
         response.data['count'] = pokemonList.data.count;
